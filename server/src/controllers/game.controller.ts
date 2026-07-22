@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import Game from "../models/game.model";
+import Game, { Genre, Platform } from "../models/game.model";
 
 // create a game in db
 export const createGame = async (
@@ -19,14 +19,53 @@ export const createGame = async (
   }
 };
 
-// fetch all games
+// fetch all games, or at filter
 export const getGames = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const games = await Game.find();
+    const { genre, platform, atDiscount } = req.query;
+    const filter: Record<string, any> = {};
+
+    // apply filters whilst validating them
+
+    if (genre) {
+      if (Object.values(Genre).includes(genre as Genre)) {
+        filter.genre = genre;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Genre filter ${genre} doesn't exist.`,
+        });
+      }
+    }
+
+    if (platform) {
+      if (Object.values(Platform).includes(platform as Platform)) {
+        filter.platform = platform;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Platform filter ${platform} doesn't exist.`,
+        });
+      }
+    }
+
+    if (atDiscount) {
+      if (atDiscount === "true" || atDiscount === "false") {
+        //atDiscount gets true if value === "true"
+        filter.atDiscount = atDiscount === "true";
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: `Discount filter ${atDiscount} is invalid.`,
+        });
+      }
+    }
+
+    const games = await Game.find(filter);
     res.status(200).json({
       success: true,
       data: games,
