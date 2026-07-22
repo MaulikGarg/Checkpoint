@@ -23,6 +23,7 @@ export interface IGame extends Document {
   price: number;
   genre: Genre;
   platform: Platform;
+  atDiscount: boolean;
   image: string;
 }
 
@@ -35,6 +36,7 @@ const gameSchema = new mongoose.Schema<IGame>(
     price: { type: Number, required: true },
     genre: { type: String, required: true, enum: Object.values(Genre) },
     platform: { type: String, required: true, enum: Object.values(Platform) },
+    atDiscount: { type: Boolean, required: true, default: false },
     image: { type: String, required: false, default: "" },
   },
   { timestamps: true },
