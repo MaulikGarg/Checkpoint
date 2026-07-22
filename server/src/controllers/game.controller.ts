@@ -77,7 +77,7 @@ export const getGames = async (
 };
 
 // fetch a specific game
-export const getGame = async (
+export const getGameById = async (
   req: Request,
   res: Response,
   next: NextFunction,
