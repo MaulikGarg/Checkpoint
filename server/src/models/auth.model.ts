@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     avatarimg: { type: String, required: false, default: "" },
     role: {
       type: String,
