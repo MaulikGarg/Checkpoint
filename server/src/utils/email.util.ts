@@ -1,7 +1,6 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
+import { google } from "googleapis";
 import { EmailError } from "./error.util";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface EmailOptions {
   to: string;
@@ -9,16 +8,49 @@ interface EmailOptions {
   html: string;
 }
 
+const OAuth2 = google.auth.OAuth2;
+
 export const sendEmail = async ({ to, subject, html }: EmailOptions) => {
-  const { data, error } = await resend.emails.send({
-    from: "checkpoint <onboarding@resend.dev>",
-    to,
-    subject,
-    html,
-  });
-  if (error) {
-    throw new EmailError(`Error sending email: ${error.message}`);
+  try {
+    // the oauth2 client which will send the mails
+    const oauth2Client = new OAuth2(
+      process.env.GMAIL_CLIENT_ID,
+      process.env.GMAIL_CLIENT_SECRET,
+      process.env.GMAIL_REDIRECT_URL,
+    );
+
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+    });
+
+    const accessToken = await oauth2Client.getAccessToken();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+        accessToken: accessToken.token as string,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `GameShopSite <${process.env.GMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new EmailError(`Error sending email: ${message}`);
   }
+
+  // if (error) {
+  //   throw new EmailError(`Error sending email: ${error.message}`);
+  // }
 };
 
 export function otpEmailTemplate(otp: string) {
