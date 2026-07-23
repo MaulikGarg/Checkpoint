@@ -23,6 +23,7 @@ export const sendTokenResponse = (
   res.cookie("token", generateToken(user), {
     httpOnly: true, // makes it so client side js cannot access (prevents XSS attack)
     sameSite: "strict", // makes it so only "this" site can access (prevents CSRF attack)
+    secure: process.env.NODE_ENV === "production",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 
@@ -92,6 +93,7 @@ export const logout = (req: Request, res: Response) => {
   res.cookie("token", "", {
     httpOnly: true,
     sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
     expires: new Date(0),
   });
   res.status(200).json({ success: true, message: "Logged out" });

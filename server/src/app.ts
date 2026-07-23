@@ -9,6 +9,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+  res.status(200).send("The server is running.");
+});
+
 // routes
 app.use("/api/games", gameRoutes);
 app.use("/api/auth", authRoutes);
@@ -16,9 +20,5 @@ app.use("/api/auth", authRoutes);
 // invalidation handlers
 app.use(notFound); // throws the 404
 app.use(errorHandler);
-
-app.get("/", (req, res) => {
-  res.status(200).send("The server is running.");
-});
 
 export default app;

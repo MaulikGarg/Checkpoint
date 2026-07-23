@@ -17,7 +17,7 @@ router.get("/:id", getGameById);
 
 // authorized calls
 router.post("/", protect, authorize("admin"), createGame);
-router.put("/", protect, authorize("admin"), updateGame);
-router.delete("/", protect, authorize("admin"), deleteGame);
+router.put("/:id", protect, authorize("admin"), updateGame);
+router.delete("/:id", protect, authorize("admin"), deleteGame);
 
 export default router;
