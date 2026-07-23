@@ -26,7 +26,7 @@ export const getGames = async (
   next: NextFunction,
 ) => {
   try {
-    const { genre, platform, atDiscount } = req.query;
+    const { genre, platform, atDiscount, page, limit } = req.query;
     const filter: Record<string, any> = {};
 
     // apply filters whilst validating them
@@ -65,11 +65,26 @@ export const getGames = async (
       }
     }
 
-    const games = await Game.find(filter);
+    const pageInt = parseInt(page as string) || 1;
+    // hard limit of 32 to not accidentally overload
+    const limitInt = Math.min(parseInt(limit as string) || 8, 32);
+    const skipCount = (pageInt - 1) * limitInt;
+
+    const [games, totalCount] = await Promise.all([
+      Game.find(filter).skip(skipCount).limit(limitInt),
+      Game.countDocuments(filter),
+    ]);
+
     res.status(200).json({
       success: true,
       data: games,
       count: games.length,
+      pagination: {
+        page: pageInt,
+        limit: limitInt,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limitInt),
+      },
     });
   } catch (error) {
     next(error);
