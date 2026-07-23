@@ -32,6 +32,11 @@ export const errorHandler = (
         message: messages.join(" "),
       });
     }
+    case "EmailError":
+      return res.status(502).json({
+        success: false,
+        message: err.message,
+      });
     default:
       return res.status(500).json({
         success: false,
