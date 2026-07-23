@@ -38,7 +38,7 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions) => {
     });
 
     await transporter.sendMail({
-      from: `GameShopSite <${process.env.GMAIL_USER}>`,
+      from: `Checkpoint <${process.env.GMAIL_USER}>`,
       to,
       subject,
       html,
